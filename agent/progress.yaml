@@ -2,7 +2,7 @@ project:
   name: acp-visualizer-tui
   version: 0.1.0
   started: 2026-03-14
-  status: in_progress
+  status: completed
   current_milestone: milestone_3
   description: |
     Terminal-based interactive visualizer for ACP progress.yaml data.
@@ -34,12 +34,12 @@ milestones:
 
   - id: milestone_3
     name: "Detail Views & Enhanced Features"
-    status: not_started
-    progress: 0
-    started: null
-    completed: null
+    status: completed
+    progress: 100
+    started: "2026-03-14"
+    completed: "2026-03-14"
     estimated_weeks: "2"
-    tasks_completed: 0
+    tasks_completed: 6
     tasks_total: 6
     notes: "P1: markdown detail views, activity log, blockers, search"
 
@@ -149,63 +149,63 @@ tasks:
   milestone_3:
     - id: task_11
       name: "Markdown Loading Service"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-3-detail-views-enhanced/task-11-markdown-loading.md
       estimated_hours: "2"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "File resolution for milestones/tasks"
+      notes: "markdown-loader.ts, milestone scan, task.file lookup, 12 unit tests"
 
     - id: task_12
       name: "Terminal Markdown Renderer"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-3-detail-views-enhanced/task-12-markdown-renderer.md
       estimated_hours: "3"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "marked + marked-terminal rendering"
+      notes: "marked + marked-terminal, MarkdownRenderer component"
 
     - id: task_13
       name: "Milestone Detail View"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-3-detail-views-enhanced/task-13-milestone-detail-view.md
       estimated_hours: "3"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Full-screen: metadata + markdown + task list"
+      notes: "Breadcrumb, metadata header, markdown body, task list, back nav"
 
     - id: task_14
       name: "Task Detail View"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-3-detail-views-enhanced/task-14-task-detail-view.md
       estimated_hours: "3"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Full-screen: metadata + markdown + sibling nav"
+      notes: "Breadcrumb, metadata, markdown body, [/] sibling nav"
 
     - id: task_15
       name: "Activity Log & Blockers Views"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-3-detail-views-enhanced/task-15-activity-blockers-views.md
       estimated_hours: "2"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Recent work timeline, blockers/next steps"
+      notes: "Built earlier in M2, wired into view routing"
 
     - id: task_16
       name: "Fuzzy Search"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-3-detail-views-enhanced/task-16-fuzzy-search.md
       estimated_hours: "3"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "fuse.js search with results view"
+      notes: "fuse.js, useSearch hook, SearchResults, / key trigger"
 
 documentation:
   design_documents: 1
@@ -215,8 +215,8 @@ documentation:
 
 progress:
   planning: 100
-  implementation: 63
-  overall: 68
+  implementation: 100
+  overall: 100
 
 recent_work:
   - date: "2026-03-14"
@@ -225,6 +225,15 @@ recent_work:
       - "Task 10: README with usage, keyboard shortcuts, views docs"
       - "npm pack verified: 22.7KB tarball, 4 files (cli.js, cli.js.map, README, package.json)"
       - "M2 done: 6/6 tasks, P0 MVP shippable"
+  - date: "2026-03-14"
+    description: "M3 complete: Detail Views & Enhanced Features"
+    items:
+      - "Markdown loader: resolveMilestoneFile (dir scan), resolveTaskFile, loadMarkdownFile"
+      - "MarkdownRenderer: marked + marked-terminal for terminal rendering"
+      - "MilestoneDetail: breadcrumb, metadata, markdown, task list, back nav"
+      - "TaskDetail: breadcrumb, metadata, markdown, [/] sibling navigation"
+      - "SearchResults: fuse.js fuzzy search, / key trigger, grouped results"
+      - "25 tests passing, 51KB build"
   - date: "2026-03-14"
     description: "Tasks 5-9 complete: All M2 views and interaction"
     items:
@@ -272,9 +281,9 @@ recent_work:
       - Created project scaffold
 
 next_steps:
-  - "P0 MVP complete! npm publish when ready"
-  - "Start M3: task-11 (Markdown Loading Service)"
-  - "M3 adds detail views, activity, search (P1 features)"
+  - "All milestones complete! Project finished."
+  - "npm publish when ready"
+  - "Future: P2 multi-project support"
 
 notes: []
 

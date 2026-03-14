@@ -54,6 +54,9 @@ if (cli.flags.json) {
   process.exit(0);
 }
 
+// Clear terminal for full-screen rendering
+process.stdout.write('\x1B[2J\x1B[H');
+
 // Interactive mode: let App handle loading via useProgressData hook
 render(
   <App

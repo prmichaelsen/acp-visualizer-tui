@@ -7,43 +7,70 @@ Terminal-based interactive visualizer for ACP progress.yaml data.
 ## Quick Start
 
 ```bash
-npx acp-visualizer-tui [path-to-progress.yaml]
+npx acp-visualizer-tui
 ```
+
+Or with a specific path:
+
+```bash
+npx acp-visualizer-tui ./path/to/progress.yaml
+```
+
+## Usage
+
+```
+$ acp-visualizer-tui [path] [options]
+
+Arguments:
+  path    Path to progress.yaml (default: ./agent/progress.yaml)
+
+Options:
+  -w, --watch       Watch mode: auto-refresh on file changes
+  -v, --view        Initial view: dashboard|milestones|tasks|activity|blockers
+  --json            Output parsed data as JSON (non-interactive)
+  --no-color        Disable colors (for piping)
+  -h, --help        Show help
+  -V, --version     Show version
+```
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Shift+Tab` | Switch between views |
+| `j` / `k` or `↑` / `↓` | Navigate within list/table |
+| `Enter` / `Space` | Expand/collapse tree node |
+| `s` | Cycle sort column (milestone table) |
+| `f` | Cycle status filter (All → In Progress → Completed → Not Started) |
+| `r` | Manual refresh |
+| `q` | Quit |
+| `?` | Show help |
+
+## Views
+
+- **Dashboard** — Project overview with progress bars, milestone summary, next steps
+- **Milestones** — Sortable table with status badges, progress %, task counts
+- **Tasks** — Expandable tree: milestones → tasks with status indicators
+- **Activity** — Recent work timeline with dates and bullet items
+- **Blockers** — Current blockers and next steps
 
 ## Features
 
 - Interactive full-screen TUI with keyboard navigation
-- Overview dashboard with progress bars
-- Milestone table with sortable columns
-- Task tree with expandable hierarchy
-- Recent work / activity log
-- Blockers & next steps summary
-- Watch mode with auto-refresh on file changes
-- Rich color support with graceful fallback
+- Watch mode (`-w`) auto-refreshes when progress.yaml changes
+- Status filtering across all views
+- `--json` for machine-readable output (great for scripting)
+- `--no-color` for piping to files
+- Rich 256-color support with graceful 16-color fallback
 
 ## Development
 
-This project uses the Agent Context Protocol for development:
-
-- `@acp.init` - Initialize agent context
-- `@acp.plan` - Plan milestones and tasks
-- `@acp.proceed` - Continue with next task
-- `@acp.status` - Check project status
-
-See [AGENT.md](./AGENT.md) for complete ACP documentation.
-
-## Project Structure
-
-```
-acp-visualizer-tui/
-├── AGENT.md              # ACP methodology
-├── agent/                # ACP directory
-│   ├── design/          # Design documents
-│   ├── milestones/      # Project milestones
-│   ├── tasks/           # Task breakdown
-│   ├── patterns/        # Architectural patterns
-│   └── progress.yaml    # Progress tracking
-└── src/                 # Source code
+```bash
+npm install
+npm run build     # Build CLI to dist/
+npm run dev       # Build with watch
+npm run test      # Run tests
+npm run typecheck # TypeScript check
 ```
 
 ## License

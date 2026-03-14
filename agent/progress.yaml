@@ -3,7 +3,7 @@ project:
   version: 0.1.0
   started: 2026-03-14
   status: in_progress
-  current_milestone: milestone_2
+  current_milestone: milestone_3
   description: |
     Terminal-based interactive visualizer for ACP progress.yaml data.
     Ink (React for CLIs) app with full-screen TUI, keyboard navigation,
@@ -23,12 +23,12 @@ milestones:
 
   - id: milestone_2
     name: "Dashboard Views & Interaction"
-    status: in_progress
-    progress: 83
+    status: completed
+    progress: 100
     started: "2026-03-14"
-    completed: null
+    completed: "2026-03-14"
     estimated_weeks: "2"
-    tasks_completed: 5
+    tasks_completed: 6
     tasks_total: 6
     notes: "P0 MVP: dashboard, table, tree, keyboard nav, filtering, publish"
 
@@ -138,13 +138,13 @@ tasks:
 
     - id: task_10
       name: "Output Modes & npm Publish"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-2-dashboard-views-interaction/task-10-output-modes-publish.md
       estimated_hours: "2"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "--json, --no-color finalization, bin entry, publish"
+      notes: "README updated, npm pack verified (22.7KB), all flags working"
 
   milestone_3:
     - id: task_11
@@ -215,10 +215,16 @@ documentation:
 
 progress:
   planning: 100
-  implementation: 56
-  overall: 60
+  implementation: 63
+  overall: 68
 
 recent_work:
+  - date: "2026-03-14"
+    description: "M2 complete: Dashboard Views & Interaction (P0 MVP)"
+    items:
+      - "Task 10: README with usage, keyboard shortcuts, views docs"
+      - "npm pack verified: 22.7KB tarball, 4 files (cli.js, cli.js.map, README, package.json)"
+      - "M2 done: 6/6 tasks, P0 MVP shippable"
   - date: "2026-03-14"
     description: "Tasks 5-9 complete: All M2 views and interaction"
     items:
@@ -266,9 +272,9 @@ recent_work:
       - Created project scaffold
 
 next_steps:
-  - "Finish M2: task-10 (Output Modes & npm Publish)"
-  - "Then M3: Detail Views & Enhanced Features (6 tasks)"
-  - "P0 MVP ships after task-10"
+  - "P0 MVP complete! npm publish when ready"
+  - "Start M3: task-11 (Markdown Loading Service)"
+  - "M3 adds detail views, activity, search (P1 features)"
 
 notes: []
 

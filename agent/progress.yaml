@@ -3,7 +3,7 @@ project:
   version: 0.1.0
   started: 2026-03-14
   status: in_progress
-  current_milestone: milestone_1
+  current_milestone: milestone_2
   description: |
     Terminal-based interactive visualizer for ACP progress.yaml data.
     Ink (React for CLIs) app with full-screen TUI, keyboard navigation,
@@ -12,12 +12,12 @@ project:
 milestones:
   - id: milestone_1
     name: "Project Scaffold & Data Pipeline"
-    status: in_progress
-    progress: 50
+    status: completed
+    progress: 100
     started: "2026-03-14"
-    completed: null
+    completed: "2026-03-14"
     estimated_weeks: "1"
-    tasks_completed: 2
+    tasks_completed: 4
     tasks_total: 4
     notes: "Foundation: npm project, TypeScript, Ink, YAML parsing, watch mode"
 
@@ -67,23 +67,23 @@ tasks:
 
     - id: task_3
       name: "CLI Entry Point & File Loading"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-1-scaffold-data-pipeline/task-3-cli-entry-point.md
       estimated_hours: "2"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Argument parsing, file reading, --json, --no-color"
+      notes: "useProgressData hook, App uses hook for loading, all CLI flags verified"
 
     - id: task_4
       name: "Watch Mode"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-1-scaffold-data-pipeline/task-4-watch-mode.md
       estimated_hours: "2"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "fs.watch auto-refresh with debounce"
+      notes: "useWatchMode hook with fs.watch, 300ms debounce, error handling"
 
   milestone_2:
     - id: task_5
@@ -215,10 +215,17 @@ documentation:
 
 progress:
   planning: 100
-  implementation: 6
-  overall: 16
+  implementation: 25
+  overall: 35
 
 recent_work:
+  - date: "2026-03-14"
+    description: "M1 complete: Project Scaffold & Data Pipeline"
+    items:
+      - "Tasks 3-4: useProgressData hook, useWatchMode hook (fs.watch, 300ms debounce)"
+      - "App refactored to use hooks instead of pre-parsed data"
+      - "All CLI flags verified: --json, --help, --version, --watch, --no-color, file-not-found"
+      - "M1 done: 4/4 tasks, moving to M2"
   - date: "2026-03-14"
     description: "Task 2 complete: Data Model & YAML Parsing"
     items:
@@ -249,9 +256,9 @@ recent_work:
       - Created project scaffold
 
 next_steps:
-  - "Continue M1: task-2 (Data Model & YAML Parsing)"
-  - "Then task-3 (CLI Entry Point) and task-4 (Watch Mode)"
-  - "P0 MVP complete after M2 (10 tasks total)"
+  - "Start M2: task-5 (App Shell & Layout)"
+  - "Then task-6 (Dashboard View), task-7 (Milestone Table)"
+  - "P0 MVP complete after M2 (6 tasks remaining)"
 
 notes: []
 

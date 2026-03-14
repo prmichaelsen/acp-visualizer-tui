@@ -32,37 +32,31 @@ const cli = meow(`
 const filePath = cli.input[0] || './agent/progress.yaml';
 const resolvedPath = path.resolve(filePath);
 
-// Read and parse
-function readFile(p: string): string {
-  try {
-    return fs.readFileSync(p, 'utf-8');
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes('ENOENT')) {
-      console.error(`Error: File not found: ${p}`);
-      console.error(`\nMake sure progress.yaml exists at the specified path.`);
-      console.error(`Default path: ./agent/progress.yaml`);
-    } else {
-      console.error(`Error reading file: ${msg}`);
-    }
-    process.exit(1);
-  }
+// Verify file exists before proceeding
+if (!fs.existsSync(resolvedPath)) {
+  console.error(`Error: File not found: ${resolvedPath}`);
+  console.error(`\nMake sure progress.yaml exists at the specified path.`);
+  console.error(`Default path: ./agent/progress.yaml`);
+  process.exit(1);
 }
 
-const raw = readFile(resolvedPath);
-
-const data = parseProgressYaml(raw);
-
-// JSON mode
+// JSON mode: parse and output, then exit
 if (cli.flags.json) {
-  console.log(JSON.stringify(data, null, 2));
+  try {
+    const raw = fs.readFileSync(resolvedPath, 'utf-8');
+    const data = parseProgressYaml(raw);
+    console.log(JSON.stringify(data, null, 2));
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`Error reading file: ${msg}`);
+    process.exit(1);
+  }
   process.exit(0);
 }
 
-// Interactive mode
+// Interactive mode: let App handle loading via useProgressData hook
 render(
   <App
-    data={data}
     filePath={resolvedPath}
     watch={cli.flags.watch}
     initialView={cli.flags.view}

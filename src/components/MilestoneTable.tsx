@@ -13,14 +13,6 @@ interface MilestoneTableProps {
 type SortKey = 'name' | 'status' | 'progress' | 'tasks' | 'started' | 'estimated_weeks';
 
 const SORT_KEYS: SortKey[] = ['name', 'status', 'progress', 'tasks', 'started', 'estimated_weeks'];
-const SORT_LABELS: Record<SortKey, string> = {
-  name: 'Name',
-  status: 'Status',
-  progress: 'Progress',
-  tasks: 'Tasks',
-  started: 'Started',
-  estimated_weeks: 'Est.',
-};
 
 const STATUS_ORDER: Record<Status, number> = {
   in_progress: 0,
@@ -77,10 +69,11 @@ export function MilestoneTable({ milestones, filterMatch, active, onSelect }: Mi
   return (
     <Box flexDirection="column">
       {/* Header row */}
-      <Box gap={1}>
-        <Box width={30}><Text bold dimColor>{colLabel('name', sortKey)} Name</Text></Box>
+      <Box>
+        <Text dimColor>{'  '}</Text>
+        <Box width={32}><Text bold dimColor>{colLabel('name', sortKey)} Name</Text></Box>
         <Box width={14}><Text bold dimColor>{colLabel('status', sortKey)} Status</Text></Box>
-        <Box width={10}><Text bold dimColor>{colLabel('progress', sortKey)} Prog</Text></Box>
+        <Box width={8}><Text bold dimColor>{colLabel('progress', sortKey)} Prog</Text></Box>
         <Box width={8}><Text bold dimColor>{colLabel('tasks', sortKey)} Tasks</Text></Box>
         <Box width={12}><Text bold dimColor>{colLabel('started', sortKey)} Started</Text></Box>
         <Box width={6}><Text bold dimColor>{colLabel('estimated_weeks', sortKey)} Est</Text></Box>
@@ -93,22 +86,45 @@ export function MilestoneTable({ milestones, filterMatch, active, onSelect }: Mi
       {sorted.map((m, i) => {
         const isSelected = i === selectedIdx && active;
         return (
-          <Box key={m.id} gap={1}>
-            <Box width={30}>
-              <Text bold={isSelected} inverse={isSelected}>
-                {truncate(m.name, 28)}
+          <Box key={m.id}>
+            <Text color={isSelected ? 'cyan' : undefined} bold={isSelected}>
+              {isSelected ? '> ' : '  '}
+            </Text>
+            <Box width={32}>
+              <Text bold={isSelected} color={isSelected ? 'cyan' : undefined}>
+                {truncate(m.name, 30)}
               </Text>
             </Box>
-            <Box width={14}><StatusBadge status={m.status} /></Box>
-            <Box width={10}><Text>{m.progress}%</Text></Box>
-            <Box width={8}><Text>{m.tasks_completed}/{m.tasks_total}</Text></Box>
-            <Box width={12}><Text dimColor>{m.started ? shortDate(m.started) : '—'}</Text></Box>
-            <Box width={6}><Text dimColor>{m.estimated_weeks}w</Text></Box>
+            <Box width={14}>
+              {isSelected ? <Text color="cyan">{statusText(m.status)}</Text> : <StatusBadge status={m.status} />}
+            </Box>
+            <Box width={8}>
+              <Text bold={isSelected} color={isSelected ? 'cyan' : undefined}>{m.progress}%</Text>
+            </Box>
+            <Box width={8}>
+              <Text bold={isSelected} color={isSelected ? 'cyan' : undefined}>{m.tasks_completed}/{m.tasks_total}</Text>
+            </Box>
+            <Box width={12}>
+              <Text dimColor={!isSelected} color={isSelected ? 'cyan' : undefined}>
+                {m.started ? shortDate(m.started) : '—'}
+              </Text>
+            </Box>
+            <Box width={6}>
+              <Text dimColor={!isSelected} color={isSelected ? 'cyan' : undefined}>{m.estimated_weeks}w</Text>
+            </Box>
           </Box>
         );
       })}
     </Box>
   );
+}
+
+function statusText(status: Status): string {
+  switch (status) {
+    case 'completed': return '✓ Completed';
+    case 'in_progress': return '● In Progress';
+    case 'not_started': return '○ Not Started';
+  }
 }
 
 function colLabel(col: SortKey, active: SortKey): string {

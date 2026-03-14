@@ -25,19 +25,24 @@ export function Header({
         {projectName} <Text dimColor>v{projectVersion}</Text>
       </Text>
       <Box gap={1}>
-        {views.map((view) => (
-          <Text
-            key={view}
-            bold={view === currentView}
-            color={view === currentView ? 'cyan' : undefined}
-            dimColor={view !== currentView}
-          >
-            {labels[view]}
-          </Text>
-        ))}
+        {views.map((view) => {
+          const isActive = view === currentView;
+          if (isActive) {
+            return (
+              <Text key={view} bold color="cyan">
+                [{labels[view]}]
+              </Text>
+            );
+          }
+          return (
+            <Text key={view} dimColor>
+              {' '}{labels[view]}{' '}
+            </Text>
+          );
+        })}
       </Box>
       <Text dimColor>
-        Filter: <Text color="yellow">{filterLabel}</Text>
+        Filter: <Text color={filterLabel === 'All' ? 'gray' : 'yellow'} bold={filterLabel !== 'All'}>{filterLabel}</Text>
       </Text>
     </Box>
   );

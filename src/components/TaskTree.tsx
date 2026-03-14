@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Box, Text, useInput } from 'ink';
 import type { Milestone, Task, Status } from '../lib/types.js';
-import { StatusBadge } from './StatusBadge.js';
 
 interface TaskTreeProps {
   milestones: Milestone[];
@@ -17,9 +16,14 @@ interface FlatItem {
   task?: Task;
 }
 
+const STATUS_DOTS: Record<Status, { dot: string; color: string }> = {
+  completed: { dot: '✓', color: 'green' },
+  in_progress: { dot: '●', color: 'cyan' },
+  not_started: { dot: '○', color: 'gray' },
+};
+
 export function TaskTree({ milestones, tasks, filterMatch, active, onSelectTask }: TaskTreeProps) {
   const [expanded, setExpanded] = useState<Set<string>>(() => {
-    // Default: expand in-progress milestones
     const set = new Set<string>();
     for (const m of milestones) {
       if (m.status === 'in_progress') set.add(m.id);
@@ -28,12 +32,10 @@ export function TaskTree({ milestones, tasks, filterMatch, active, onSelectTask 
   });
   const [cursorIdx, setCursorIdx] = useState(0);
 
-  // Build flat list of visible items
   const flatItems = useMemo(() => {
     const items: FlatItem[] = [];
     for (const m of milestones) {
       const milestoneTasks = (tasks[m.id] || []).filter((t) => filterMatch(t.status));
-      // Hide milestone if all tasks filtered out and milestone itself doesn't match
       if (milestoneTasks.length === 0 && !filterMatch(m.status)) continue;
 
       items.push({ type: 'milestone', milestone: m });
@@ -80,32 +82,37 @@ export function TaskTree({ milestones, tasks, filterMatch, active, onSelectTask 
     <Box flexDirection="column">
       {flatItems.map((item, i) => {
         const isSelected = i === cursorIdx && active;
+        const selColor = isSelected ? 'cyan' : undefined;
 
         if (item.type === 'milestone') {
           const m = item.milestone;
           const icon = expanded.has(m.id) ? '▼' : '►';
           const taskCount = (tasks[m.id] || []).filter((t) => filterMatch(t.status)).length;
+          const { dot, color } = STATUS_DOTS[m.status];
 
           return (
-            <Box key={m.id} gap={1}>
-              <Text bold={isSelected} inverse={isSelected}>
+            <Box key={m.id}>
+              <Text color={selColor} bold={isSelected}>
+                {isSelected ? '> ' : '  '}
                 {icon} {m.name}
               </Text>
-              <StatusBadge status={m.status} compact />
-              <Text dimColor>[{m.progress}%]</Text>
-              <Text dimColor>({taskCount} tasks)</Text>
+              <Text> </Text>
+              <Text color={isSelected ? 'cyan' : color}>{dot}</Text>
+              <Text dimColor={!isSelected} color={selColor}> [{m.progress}%] ({taskCount} tasks)</Text>
             </Box>
           );
         }
 
-        // Task item
         const t = item.task!;
+        const { dot, color } = STATUS_DOTS[t.status];
         return (
-          <Box key={t.id} gap={1} marginLeft={4}>
-            <Text bold={isSelected} inverse={isSelected}>
-              <StatusBadge status={t.status} compact /> {t.name}
+          <Box key={t.id}>
+            <Text color={selColor} bold={isSelected}>
+              {isSelected ? '>     ' : '      '}
+              <Text color={isSelected ? 'cyan' : color}>{dot}</Text>
+              {' '}{t.name}
             </Text>
-            {t.estimated_hours && <Text dimColor>{t.estimated_hours}h</Text>}
+            {t.estimated_hours && <Text dimColor={!isSelected} color={selColor}> {t.estimated_hours}h</Text>}
           </Box>
         );
       })}

@@ -1,0 +1,41 @@
+project:
+  name: acp-visualizer-tui
+  version: 0.1.0
+  started: 2026-03-14
+  status: in_progress
+  description: |
+    Terminal-based interactive visualizer for ACP progress.yaml data.
+    Ink (React for CLIs) app with full-screen TUI, keyboard navigation,
+    overview dashboard, milestone table, task tree, and watch mode.
+
+milestones: []
+
+tasks: {}
+
+documentation:
+  design_documents: 0
+  milestone_documents: 0
+  pattern_documents: 0
+  task_documents: 0
+
+progress:
+  planning: 0
+  implementation: 0
+  overall: 0
+
+recent_work:
+  - date: "2026-03-14"
+    description: Project created
+    items:
+      - Initialized ACP project
+      - Completed clarification-1 (TUI requirements)
+      - Created project scaffold
+
+next_steps:
+  - Define project requirements in agent/design/requirements.md
+  - Plan milestones and tasks with @acp.plan
+  - Start development with @acp.proceed
+
+notes: []
+
+current_blockers: []

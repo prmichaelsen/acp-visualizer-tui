@@ -13,11 +13,11 @@ milestones:
   - id: milestone_1
     name: "Project Scaffold & Data Pipeline"
     status: in_progress
-    progress: 25
+    progress: 50
     started: "2026-03-14"
     completed: null
     estimated_weeks: "1"
-    tasks_completed: 1
+    tasks_completed: 2
     tasks_total: 4
     notes: "Foundation: npm project, TypeScript, Ink, YAML parsing, watch mode"
 
@@ -57,13 +57,13 @@ tasks:
 
     - id: task_2
       name: "Data Model & YAML Parsing"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-1-scaffold-data-pipeline/task-2-data-model-yaml-parsing.md
       estimated_hours: "3"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Types, parser, normalization, tests"
+      notes: "Types, parser, normalization, tests — 13 tests passing"
 
     - id: task_3
       name: "CLI Entry Point & File Loading"
@@ -219,6 +219,13 @@ progress:
   overall: 16
 
 recent_work:
+  - date: "2026-03-14"
+    description: "Task 2 complete: Data Model & YAML Parsing"
+    items:
+      - "13 unit tests covering: complete parse, missing sections, status variants"
+      - "Key alias resolution, extra fields preservation, string-for-array coercion"
+      - "Empty/invalid YAML, computed milestone progress, real progress.yaml parse"
+      - "vitest.config.ts created, all tests passing"
   - date: "2026-03-14"
     description: "Task 1 complete: Initialize Project & Dependencies"
     items:

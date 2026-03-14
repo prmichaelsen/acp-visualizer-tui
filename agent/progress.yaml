@@ -23,12 +23,12 @@ milestones:
 
   - id: milestone_2
     name: "Dashboard Views & Interaction"
-    status: not_started
-    progress: 0
-    started: null
+    status: in_progress
+    progress: 83
+    started: "2026-03-14"
     completed: null
     estimated_weeks: "2"
-    tasks_completed: 0
+    tasks_completed: 5
     tasks_total: 6
     notes: "P0 MVP: dashboard, table, tree, keyboard nav, filtering, publish"
 
@@ -88,53 +88,53 @@ tasks:
   milestone_2:
     - id: task_5
       name: "App Shell & Layout"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-2-dashboard-views-interaction/task-5-app-shell-layout.md
       estimated_hours: "3"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Full-screen layout, header, help bar, view routing"
+      notes: "Header, HelpBar, useNavigation, useFilter, view routing, help overlay"
 
     - id: task_6
       name: "Dashboard View"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-2-dashboard-views-interaction/task-6-dashboard-view.md
       estimated_hours: "3"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Project overview, progress bars, next steps"
+      notes: "StatusBadge, ProgressBar, Dashboard with project info, milestones, next steps"
 
     - id: task_7
       name: "Milestone Table"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-2-dashboard-views-interaction/task-7-milestone-table.md
       estimated_hours: "4"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Sortable table with status badges"
+      notes: "Sortable table, j/k nav, s to cycle sort, status badges, filter"
 
     - id: task_8
       name: "Task Tree"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-2-dashboard-views-interaction/task-8-task-tree.md
       estimated_hours: "4"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Expandable milestone → task hierarchy"
+      notes: "Expandable tree, Enter/Space toggle, j/k nav, filter integration"
 
     - id: task_9
       name: "Keyboard Navigation & Filtering"
-      status: not_started
+      status: completed
       file: agent/tasks/milestone-2-dashboard-views-interaction/task-9-keyboard-navigation-filtering.md
       estimated_hours: "3"
-      started: null
-      completed_date: null
+      started: "2026-03-14T00:00:00Z"
+      completed_date: "2026-03-14T00:00:00Z"
       actual_hours: null
-      notes: "Global keys, view nav, status filter, help overlay"
+      notes: "Tab/Shift+Tab views, q quit, f filter, r refresh, ? help overlay"
 
     - id: task_10
       name: "Output Modes & npm Publish"
@@ -215,10 +215,20 @@ documentation:
 
 progress:
   planning: 100
-  implementation: 25
-  overall: 35
+  implementation: 56
+  overall: 60
 
 recent_work:
+  - date: "2026-03-14"
+    description: "Tasks 5-9 complete: All M2 views and interaction"
+    items:
+      - "App shell: Header, HelpBar, useNavigation (Tab/Shift+Tab), useFilter (f to cycle)"
+      - "Dashboard: project info, progress bar, milestone summary, blockers, next steps"
+      - "MilestoneTable: sortable columns (s key), j/k nav, status badges, filter"
+      - "TaskTree: expandable milestone→task, Enter/Space toggle, filter integration"
+      - "ActivityLog + BlockersNextSteps views"
+      - "Global keys: q quit, r refresh, ? help overlay"
+      - "Typecheck, build (33KB), 13 tests all passing"
   - date: "2026-03-14"
     description: "M1 complete: Project Scaffold & Data Pipeline"
     items:
@@ -256,9 +266,9 @@ recent_work:
       - Created project scaffold
 
 next_steps:
-  - "Start M2: task-5 (App Shell & Layout)"
-  - "Then task-6 (Dashboard View), task-7 (Milestone Table)"
-  - "P0 MVP complete after M2 (6 tasks remaining)"
+  - "Finish M2: task-10 (Output Modes & npm Publish)"
+  - "Then M3: Detail Views & Enhanced Features (6 tasks)"
+  - "P0 MVP ships after task-10"
 
 notes: []
 

@@ -1,6 +1,6 @@
 {
   "name": "acp-visualizer-tui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Terminal-based interactive visualizer for ACP progress.yaml data",
   "type": "module",
   "bin": {

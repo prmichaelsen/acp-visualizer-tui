@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import type { Milestone, Task, ProgressData } from '../lib/types.js';
 import { getBasePath, resolveMilestoneFile, loadMarkdownFile } from '../lib/markdown-loader.js';
@@ -32,17 +32,30 @@ export function MilestoneDetail({
     return loadMarkdownFile(basePath, resolved);
   }, [filePath, milestone.id]);
 
-  const [taskIdx, setTaskIdx] = React.useState(0);
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const [taskIdx, setTaskIdx] = useState(0);
+  const [focusArea, setFocusArea] = useState<'content' | 'tasks'>('content');
 
   useInput((input, key) => {
     if (!active) return;
     if (key.escape || key.backspace || key.delete) {
       onBack();
+    } else if (key.tab) {
+      // Toggle focus between content scroll and task list
+      setFocusArea((f) => f === 'content' ? 'tasks' : 'content');
     } else if (input === 'j' || key.downArrow) {
-      setTaskIdx((i) => Math.min(i + 1, tasks.length - 1));
+      if (focusArea === 'content') {
+        setScrollOffset((s) => s + 3);
+      } else {
+        setTaskIdx((i) => Math.min(i + 1, tasks.length - 1));
+      }
     } else if (input === 'k' || key.upArrow) {
-      setTaskIdx((i) => Math.max(i - 1, 0));
-    } else if (key.return && tasks[taskIdx] && onSelectTask) {
+      if (focusArea === 'content') {
+        setScrollOffset((s) => Math.max(0, s - 3));
+      } else {
+        setTaskIdx((i) => Math.max(i - 1, 0));
+      }
+    } else if (key.return && focusArea === 'tasks' && tasks[taskIdx] && onSelectTask) {
       onSelectTask(tasks[taskIdx]);
     }
   });
@@ -67,24 +80,31 @@ export function MilestoneDetail({
 
       {/* Markdown */}
       {'content' in markdownResult ? (
-        <MarkdownRenderer content={markdownResult.content} />
+        <Box borderStyle={focusArea === 'content' ? 'bold' : undefined}>
+          <MarkdownRenderer content={markdownResult.content} scrollOffset={scrollOffset} />
+        </Box>
       ) : (
         <Text dimColor>{'error' in markdownResult ? markdownResult.error : 'No content'}</Text>
       )}
 
       {/* Task list */}
       {tasks.length > 0 && (
-        <Box flexDirection="column" borderStyle="single" paddingX={1}>
+        <Box flexDirection="column" borderStyle={focusArea === 'tasks' ? 'bold' : 'single'} paddingX={1}>
           <Text bold> Tasks</Text>
-          {tasks.map((t, i) => (
-            <Text key={t.id} bold={i === taskIdx && active} inverse={i === taskIdx && active}>
-              <StatusBadge status={t.status} compact /> {t.name}
-            </Text>
-          ))}
+          {tasks.map((t, i) => {
+            const isSel = i === taskIdx && focusArea === 'tasks';
+            return (
+              <Text key={t.id} bold={isSel} color={isSel ? 'cyan' : undefined}>
+                {isSel ? '> ' : '  '}<StatusBadge status={t.status} compact /> {t.name}
+              </Text>
+            );
+          })}
         </Box>
       )}
 
-      <Text dimColor>Backspace:Back  j/k:Navigate tasks  Enter:Open task</Text>
+      <Text dimColor>
+        Esc:Back  j/k:Scroll  Tab:{focusArea === 'content' ? 'Focus tasks' : 'Focus content'}  Enter:Open task
+      </Text>
     </Box>
   );
 }

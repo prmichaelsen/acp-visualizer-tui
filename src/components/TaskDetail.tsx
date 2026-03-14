@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import type { Task, Milestone, ProgressData } from '../lib/types.js';
 import { getBasePath, loadMarkdownFile } from '../lib/markdown-loader.js';
@@ -32,6 +32,8 @@ export function TaskDetail({
     return loadMarkdownFile(basePath, task.file);
   }, [filePath, task.file, task.id]);
 
+  const [scrollOffset, setScrollOffset] = useState(0);
+
   const siblingIdx = siblings.findIndex((t) => t.id === task.id);
   const prevTask = siblingIdx > 0 ? siblings[siblingIdx - 1] : null;
   const nextTask = siblingIdx < siblings.length - 1 ? siblings[siblingIdx + 1] : null;
@@ -40,9 +42,15 @@ export function TaskDetail({
     if (!active) return;
     if (key.escape || key.backspace || key.delete) {
       onBack();
+    } else if (input === 'j' || key.downArrow) {
+      setScrollOffset((s) => s + 3);
+    } else if (input === 'k' || key.upArrow) {
+      setScrollOffset((s) => Math.max(0, s - 3));
     } else if (input === '[' && prevTask && onNavigateSibling) {
+      setScrollOffset(0);
       onNavigateSibling(prevTask);
     } else if (input === ']' && nextTask && onNavigateSibling) {
+      setScrollOffset(0);
       onNavigateSibling(nextTask);
     }
   });
@@ -70,7 +78,7 @@ export function TaskDetail({
 
       {/* Markdown */}
       {'content' in markdownResult ? (
-        <MarkdownRenderer content={markdownResult.content} />
+        <MarkdownRenderer content={markdownResult.content} scrollOffset={scrollOffset} />
       ) : (
         <Text dimColor>{'error' in markdownResult ? markdownResult.error : 'No content'}</Text>
       )}
@@ -78,18 +86,18 @@ export function TaskDetail({
       {/* Sibling navigation */}
       <Box gap={2}>
         {prevTask ? (
-          <Text dimColor>[: ← {prevTask.name}</Text>
+          <Text dimColor>[: {prevTask.name}</Text>
         ) : (
           <Text dimColor>[: (first task)</Text>
         )}
         {nextTask ? (
-          <Text dimColor>]: → {nextTask.name}</Text>
+          <Text dimColor>]: {nextTask.name}</Text>
         ) : (
           <Text dimColor>]: (last task)</Text>
         )}
       </Box>
 
-      <Text dimColor>Backspace:Back  [/]:Prev/Next task</Text>
+      <Text dimColor>Esc:Back  j/k:Scroll  [/]:Prev/Next task</Text>
     </Box>
   );
 }

@@ -55,6 +55,12 @@ export function TaskTree({ milestones, tasks, filterMatch, active, onSelectTask 
       setCursorIdx((i) => Math.min(i + 1, flatItems.length - 1));
     } else if (input === 'k' || key.upArrow) {
       setCursorIdx((i) => Math.max(i - 1, 0));
+    } else if (input === 'e') {
+      setExpanded((prev) => {
+        const allIds = milestones.map((m) => m.id);
+        const allExpanded = allIds.every((id) => prev.has(id));
+        return allExpanded ? new Set<string>() : new Set(allIds);
+      });
     } else if (key.return || input === ' ') {
       const item = flatItems[cursorIdx];
       if (!item) return;

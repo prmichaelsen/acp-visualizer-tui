@@ -14,6 +14,11 @@ const VIEW_KEYS: Record<ViewName, string> = {
   tasks: `j/k:Navigate  Enter:Expand/Detail  Space:Toggle  e:Expand All  ${COMMON_KEYS}`,
   activity: `${COMMON_KEYS}`,
   blockers: `${COMMON_KEYS}`,
+  burndown: `${COMMON_KEYS}`,
+  estimates: `${COMMON_KEYS}`,
+  kanban: `h/l:Column  j/k:Card  Enter:Detail  ${COMMON_KEYS}`,
+  gantt: `j/k:Navigate  Enter:Detail  ${COMMON_KEYS}`,
+  graph: `j/k:Scroll  ${COMMON_KEYS}`,
 };
 
 export function HelpBar({ currentView }: HelpBarProps) {

@@ -15,6 +15,11 @@ import { MilestoneDetail } from './components/MilestoneDetail.js';
 import { TaskDetail } from './components/TaskDetail.js';
 import { SearchResults } from './components/SearchResults.js';
 import { useSearch } from './hooks/useSearch.js';
+import { BurndownChart } from './components/BurndownChart.js';
+import { EstimateChart } from './components/EstimateChart.js';
+import { KanbanBoard } from './components/KanbanBoard.js';
+import { GanttChart } from './components/GanttChart.js';
+import { DependencyGraph } from './components/DependencyGraph.js';
 import type { Milestone, Task } from './lib/types.js';
 
 interface AppProps {
@@ -277,6 +282,31 @@ export default function App({ filePath, watch, initialView }: AppProps) {
             blockers={data.current_blockers}
             nextSteps={data.next_steps}
           />
+        )}
+        {nav.currentView === 'burndown' && (
+          <BurndownChart data={data} />
+        )}
+        {nav.currentView === 'estimates' && (
+          <EstimateChart data={data} />
+        )}
+        {nav.currentView === 'kanban' && (
+          <KanbanBoard
+            milestones={data.milestones}
+            tasks={data.tasks}
+            filterMatch={filter.matches}
+            active={true}
+            onSelect={openMilestoneDetail}
+          />
+        )}
+        {nav.currentView === 'gantt' && (
+          <GanttChart
+            milestones={data.milestones}
+            active={true}
+            onSelect={openMilestoneDetail}
+          />
+        )}
+        {nav.currentView === 'graph' && (
+          <DependencyGraph data={data} />
         )}
       </Box>
       <Text dimColor>{'─'.repeat(80)}</Text>

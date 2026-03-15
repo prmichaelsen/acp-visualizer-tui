@@ -3,7 +3,7 @@ project:
   version: 0.1.0
   started: 2026-03-14
   status: completed
-  current_milestone: milestone_3
+  current_milestone: milestone_4
   description: |
     Terminal-based interactive visualizer for ACP progress.yaml data.
     Ink (React for CLIs) app with full-screen TUI, keyboard navigation,
@@ -42,6 +42,17 @@ milestones:
     tasks_completed: 6
     tasks_total: 6
     notes: "P1: markdown detail views, activity log, blockers, search"
+
+  - id: milestone_4
+    name: "Graph Visualizations"
+    status: completed
+    progress: 100
+    started: "2026-03-15"
+    completed: "2026-03-15"
+    estimated_weeks: "2"
+    tasks_completed: 5
+    tasks_total: 5
+    notes: "Burndown, estimate vs actual, kanban, gantt, dependency graph"
 
 tasks:
   milestone_1:
@@ -207,11 +218,62 @@ tasks:
       actual_hours: null
       notes: "fuse.js, useSearch hook, SearchResults, / key trigger"
 
+  milestone_4:
+    - id: task_17
+      name: "Burndown Chart View"
+      status: completed
+      file: agent/tasks/milestone-4-graph-visualizations/task-17-burndown-chart.md
+      estimated_hours: "3"
+      started: "2026-03-15T00:00:00Z"
+      completed_date: "2026-03-15T00:00:00Z"
+      actual_hours: null
+      notes: "ASCII burndown chart, buildBurndownData utility, cumulative completion"
+
+    - id: task_18
+      name: "Estimate vs Actual Chart"
+      status: completed
+      file: agent/tasks/milestone-4-graph-visualizations/task-18-estimate-chart.md
+      estimated_hours: "2"
+      started: "2026-03-15T00:00:00Z"
+      completed_date: "2026-03-15T00:00:00Z"
+      actual_hours: null
+      notes: "Horizontal bar chart, red/green actual vs estimated, 6h/day calc"
+
+    - id: task_19
+      name: "Kanban Board View"
+      status: completed
+      file: agent/tasks/milestone-4-graph-visualizations/task-19-kanban-board.md
+      estimated_hours: "3"
+      started: "2026-03-15T00:00:00Z"
+      completed_date: "2026-03-15T00:00:00Z"
+      actual_hours: null
+      notes: "3 status columns, h/l/j/k nav, milestone cards with progress"
+
+    - id: task_20
+      name: "Gantt Timeline View"
+      status: completed
+      file: agent/tasks/milestone-4-graph-visualizations/task-20-gantt-timeline.md
+      estimated_hours: "3"
+      started: "2026-03-15T00:00:00Z"
+      completed_date: "2026-03-15T00:00:00Z"
+      actual_hours: null
+      notes: "Horizontal bars with date axis, month markers, progress fill"
+
+    - id: task_21
+      name: "Dependency Graph View"
+      status: completed
+      file: agent/tasks/milestone-4-graph-visualizations/task-21-dependency-graph.md
+      estimated_hours: "4"
+      started: "2026-03-15T00:00:00Z"
+      completed_date: "2026-03-15T00:00:00Z"
+      actual_hours: null
+      notes: "Box-drawing char nodes, sequential + cross-milestone edges, scrollable"
+
 documentation:
   design_documents: 1
-  milestone_documents: 3
+  milestone_documents: 4
   pattern_documents: 0
-  task_documents: 16
+  task_documents: 21
 
 progress:
   planning: 100
@@ -219,6 +281,18 @@ progress:
   overall: 100
 
 recent_work:
+  - date: "2026-03-15"
+    description: "M4 complete: Graph Visualizations"
+    items:
+      - "BurndownChart: ASCII area chart with cumulative task completion over time"
+      - "EstimateChart: Horizontal bar chart comparing estimated vs actual hours per milestone"
+      - "KanbanBoard: 3-column status board with milestone cards, h/l/j/k navigation"
+      - "GanttChart: Timeline bars with date axis, month markers, progress fill"
+      - "DependencyGraph: Box-drawing character nodes with sequential + cross-milestone edges"
+      - "chart-utils.ts: Shared data transformers (buildBurndownData, buildEstimateData, buildGanttData, buildGraphData)"
+      - "10 new views in navigation (5 graph views added to VIEW_ORDER)"
+      - "15 new tests for chart utilities, 44 total tests passing"
+      - "Build: 84KB, typecheck clean"
   - date: "2026-03-14"
     description: "M2 complete: Dashboard Views & Interaction (P0 MVP)"
     items:
@@ -281,7 +355,7 @@ recent_work:
       - Created project scaffold
 
 next_steps:
-  - "All milestones complete! Project finished."
+  - "All milestones complete! M4 Graph Visualizations done."
   - "npm publish when ready"
   - "Future: P2 multi-project support"
 

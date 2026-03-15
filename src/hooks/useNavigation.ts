@@ -1,13 +1,18 @@
 import { useState, useCallback } from 'react';
 
-export type ViewName = 'dashboard' | 'milestones' | 'tasks' | 'activity' | 'blockers';
+export type ViewName = 'dashboard' | 'milestones' | 'tasks' | 'activity' | 'blockers' | 'burndown' | 'estimates' | 'kanban' | 'gantt' | 'graph';
 
-const VIEW_ORDER: ViewName[] = ['dashboard', 'milestones', 'tasks', 'activity', 'blockers'];
+const VIEW_ORDER: ViewName[] = ['dashboard', 'milestones', 'tasks', 'kanban', 'gantt', 'burndown', 'estimates', 'graph', 'activity', 'blockers'];
 
 const VIEW_LABELS: Record<ViewName, string> = {
   dashboard: 'Dashboard',
   milestones: 'Milestones',
   tasks: 'Tasks',
+  kanban: 'Kanban',
+  gantt: 'Gantt',
+  burndown: 'Burndown',
+  estimates: 'Estimates',
+  graph: 'Graph',
   activity: 'Activity',
   blockers: 'Blockers',
 };

@@ -250,6 +250,128 @@ tasks:
     expect(data.milestones[0].progress).toBe(67);
   });
 
+  it('reconciles mismatched task keys to milestone IDs by number', () => {
+    const yaml = `
+project:
+  name: test
+
+milestones:
+  - id: M1
+    name: First
+    status: in_progress
+  - id: M2
+    name: Second
+    status: not_started
+
+tasks:
+  milestone_1:
+    - id: t1
+      name: Task One
+      status: completed
+    - id: t2
+      name: Task Two
+      status: not_started
+  milestone_2:
+    - id: t3
+      name: Task Three
+      status: not_started
+`;
+    const data = parseProgressYaml(yaml);
+
+    // Tasks should be re-keyed to M1/M2
+    expect(data.tasks.M1).toHaveLength(2);
+    expect(data.tasks.M2).toHaveLength(1);
+    expect(data.tasks.M1[0].milestone_id).toBe('M1');
+    expect(data.tasks.M1[0].name).toBe('Task One');
+    expect(data.tasks.M2[0].milestone_id).toBe('M2');
+    // Old keys should not exist
+    expect(data.tasks.milestone_1).toBeUndefined();
+    expect(data.tasks.milestone_2).toBeUndefined();
+  });
+
+  it('reconciles mixed exact and mismatched task keys', () => {
+    const yaml = `
+project:
+  name: test
+
+milestones:
+  - id: m1
+    name: First
+    status: completed
+  - id: M2
+    name: Second
+    status: not_started
+
+tasks:
+  m1:
+    - id: t1
+      name: Exact Match
+      status: completed
+  milestone_2:
+    - id: t2
+      name: Numeric Match
+      status: not_started
+`;
+    const data = parseProgressYaml(yaml);
+
+    expect(data.tasks.m1).toHaveLength(1);
+    expect(data.tasks.m1[0].milestone_id).toBe('m1');
+    expect(data.tasks.M2).toHaveLength(1);
+    expect(data.tasks.M2[0].milestone_id).toBe('M2');
+  });
+
+  it('leaves already-matching task keys unchanged', () => {
+    const yaml = `
+project:
+  name: test
+
+milestones:
+  - id: milestone_1
+    name: First
+    status: completed
+
+tasks:
+  milestone_1:
+    - id: t1
+      name: Already Matches
+      status: completed
+`;
+    const data = parseProgressYaml(yaml);
+
+    expect(data.tasks.milestone_1).toHaveLength(1);
+    expect(data.tasks.milestone_1[0].milestone_id).toBe('milestone_1');
+  });
+
+  it('computes progress after reconciling mismatched keys', () => {
+    const yaml = `
+project:
+  name: test
+
+milestones:
+  - id: M1
+    name: First
+    status: in_progress
+    progress: 0
+    tasks_completed: 0
+    tasks_total: 0
+
+tasks:
+  milestone_1:
+    - id: t1
+      name: Done
+      status: completed
+    - id: t2
+      name: Not Done
+      status: not_started
+`;
+    const data = parseProgressYaml(yaml);
+
+    expect(data.tasks.M1).toHaveLength(2);
+    expect(data.milestones[0].tasks_completed).toBe(1);
+    expect(data.milestones[0].tasks_total).toBe(2);
+    expect(data.milestones[0].progress).toBe(50);
+  });
+
   it('parses real progress.yaml from this project', () => {
     const filePath = path.resolve('agent/progress.yaml');
     const raw = fs.readFileSync(filePath, 'utf-8');

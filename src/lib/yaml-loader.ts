@@ -171,6 +171,66 @@ function normalizeProgress(raw: unknown): ProgressSummary {
   };
 }
 
+function extractNumber(key: string): number | null {
+  const match = key.match(/(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+function reconcileTaskKeys(
+  tasks: Record<string, Task[]>,
+  milestones: Milestone[],
+): Record<string, Task[]> {
+  const milestoneIds = new Set(milestones.map((m) => m.id));
+  const taskKeys = Object.keys(tasks);
+
+  // If all task keys already match milestone IDs, nothing to do
+  if (taskKeys.every((k) => milestoneIds.has(k))) return tasks;
+
+  // Build a number→milestoneId lookup from milestones
+  const numToMilestoneId = new Map<number, string>();
+  for (const m of milestones) {
+    const n = extractNumber(m.id);
+    if (n !== null) numToMilestoneId.set(n, m.id);
+  }
+
+  const reconciled: Record<string, Task[]> = {};
+  const unmatchedKeys: string[] = [];
+
+  for (const key of taskKeys) {
+    if (milestoneIds.has(key)) {
+      // Exact match — keep as-is
+      reconciled[key] = tasks[key];
+    } else {
+      // Try numeric match
+      const n = extractNumber(key);
+      const resolvedId = n !== null ? numToMilestoneId.get(n) : undefined;
+      if (resolvedId && !reconciled[resolvedId]) {
+        // Re-key and update each task's milestone_id
+        reconciled[resolvedId] = tasks[key].map((t) => ({ ...t, milestone_id: resolvedId }));
+      } else {
+        unmatchedKeys.push(key);
+      }
+    }
+  }
+
+  // Last resort: match remaining unmatched keys to unmatched milestones by position
+  const reconciledIds = new Set(Object.keys(reconciled));
+  const unmatchedMilestones = milestones.filter((m) => !reconciledIds.has(m.id));
+  let positionalIdx = 0;
+  for (const key of unmatchedKeys) {
+    if (positionalIdx < unmatchedMilestones.length) {
+      const mid = unmatchedMilestones[positionalIdx].id;
+      reconciled[mid] = tasks[key].map((t) => ({ ...t, milestone_id: mid }));
+      positionalIdx++;
+    } else {
+      // No milestone to map to — preserve under original key
+      reconciled[key] = tasks[key];
+    }
+  }
+
+  return reconciled;
+}
+
 export function parseProgressYaml(raw: string): ProgressData {
   try {
     const doc = yaml.load(raw) as Record<string, unknown> | null;
@@ -179,7 +239,7 @@ export function parseProgressYaml(raw: string): ProgressData {
     }
 
     const milestones = normalizeMilestones(doc.milestones);
-    const tasks = normalizeTasks(doc.tasks);
+    const tasks = reconcileTaskKeys(normalizeTasks(doc.tasks), milestones);
 
     // Compute milestone progress from tasks if not explicitly set
     for (const milestone of milestones) {

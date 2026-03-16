@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import type { Milestone, Task, Status } from '../lib/types.js';
 import { ProgressBar } from './ProgressBar.js';
+import { MentionText } from './MentionText.js';
 
 interface KanbanBoardProps {
   milestones: Milestone[];
@@ -116,8 +117,10 @@ export function KanbanBoard({ milestones, tasks, filterMatch, active, onSelect }
                       <ProgressBar percent={m.progress} width={15} />
                       <Text dimColor>
                         {completedTasks}/{taskList.length} tasks
-                        {m.notes ? ` · ${m.notes.slice(0, 20)}` : ''}
                       </Text>
+                      {m.notes && (
+                        <MentionText dimColor>{` · ${m.notes.slice(0, 20)}`}</MentionText>
+                      )}
                     </Box>
                   );
                 })

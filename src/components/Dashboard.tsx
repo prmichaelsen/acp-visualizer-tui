@@ -3,6 +3,7 @@ import { Box, Text } from 'ink';
 import type { ProgressData } from '../lib/types.js';
 import { StatusBadge } from './StatusBadge.js';
 import { ProgressBar } from './ProgressBar.js';
+import { MentionText } from './MentionText.js';
 
 interface DashboardProps {
   data: ProgressData;
@@ -52,7 +53,7 @@ export function Dashboard({ data }: DashboardProps) {
         <Box flexDirection="column" borderStyle="single" paddingX={1}>
           <Text bold color="red"> Blockers</Text>
           {current_blockers.map((b, i) => (
-            <Text key={i} color="red">  • {b}</Text>
+            <MentionText key={i} color="red">{`  • ${b}`}</MentionText>
           ))}
         </Box>
       )}
@@ -62,7 +63,7 @@ export function Dashboard({ data }: DashboardProps) {
         <Box flexDirection="column" borderStyle="single" paddingX={1}>
           <Text bold> Next Steps</Text>
           {next_steps.map((step, i) => (
-            <Text key={i}>  {i + 1}. {step}</Text>
+            <MentionText key={i}>{`  ${i + 1}. ${step}`}</MentionText>
           ))}
         </Box>
       )}

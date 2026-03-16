@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Text } from 'ink';
+import { MentionText } from './MentionText.js';
 
 interface BlockersNextStepsProps {
   blockers: string[];
@@ -16,7 +17,7 @@ export function BlockersNextSteps({ blockers, nextSteps }: BlockersNextStepsProp
           <Text dimColor>  (none)</Text>
         ) : (
           blockers.map((b, i) => (
-            <Text key={i} color="red">  • {b}</Text>
+            <MentionText key={i} color="red">{`  • ${b}`}</MentionText>
           ))
         )}
       </Box>
@@ -28,7 +29,7 @@ export function BlockersNextSteps({ blockers, nextSteps }: BlockersNextStepsProp
           <Text dimColor>  (none)</Text>
         ) : (
           nextSteps.map((s, i) => (
-            <Text key={i}>  {i + 1}. {s}</Text>
+            <MentionText key={i}>{`  ${i + 1}. ${s}`}</MentionText>
           ))
         )}
       </Box>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Text } from 'ink';
 import type { WorkEntry } from '../lib/types.js';
+import { MentionText } from './MentionText.js';
 
 interface ActivityLogProps {
   entries: WorkEntry[];
@@ -17,10 +18,10 @@ export function ActivityLog({ entries }: ActivityLogProps) {
         <Box key={i} flexDirection="column">
           <Text>
             <Text bold>{entry.date}</Text>
-            <Text dimColor> — {entry.description}</Text>
+            <Text dimColor> — </Text><MentionText dimColor>{entry.description}</MentionText>
           </Text>
           {entry.items.map((item, j) => (
-            <Text key={j} dimColor>  • {item}</Text>
+            <MentionText key={j} dimColor>{`  • ${item}`}</MentionText>
           ))}
         </Box>
       ))}

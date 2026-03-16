@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 
-export type ViewName = 'dashboard' | 'milestones' | 'tasks' | 'activity' | 'blockers' | 'burndown' | 'estimates' | 'kanban' | 'gantt' | 'graph' | 'flame' | 'priority';
+export type ViewName = 'dashboard' | 'milestones' | 'tasks' | 'activity' | 'blockers' | 'burndown' | 'estimates' | 'kanban' | 'gantt' | 'graph' | 'priority';
 
-const VIEW_ORDER: ViewName[] = ['dashboard', 'milestones', 'tasks', 'kanban', 'gantt', 'burndown', 'estimates', 'flame', 'priority', 'graph', 'activity', 'blockers'];
+const VIEW_ORDER: ViewName[] = ['dashboard', 'milestones', 'tasks', 'kanban', 'gantt', 'burndown', 'estimates', 'priority', 'graph', 'activity', 'blockers'];
 
 const VIEW_LABELS: Record<ViewName, string> = {
   dashboard: 'Dashboard',
@@ -12,7 +12,6 @@ const VIEW_LABELS: Record<ViewName, string> = {
   gantt: 'Gantt',
   burndown: 'Burndown',
   estimates: 'Estimates',
-  flame: 'Flame',
   priority: 'Priority',
   graph: 'Graph',
   activity: 'Activity',

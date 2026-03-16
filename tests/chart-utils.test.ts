@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildBurndownData, buildEstimateData, buildGanttData, buildGraphData, buildFlameData, buildPriorityData, parseDate, daysBetween, formatShortDate } from '../src/lib/chart-utils.js';
+import { buildBurndownData, buildEstimateData, buildGanttData, buildGraphData, buildPriorityData, parseDate, daysBetween, formatShortDate } from '../src/lib/chart-utils.js';
 import type { ProgressData, Milestone, Task } from '../src/lib/types.js';
 
 function makeData(overrides: Partial<ProgressData> = {}): ProgressData {
@@ -110,30 +110,6 @@ describe('buildGraphData', () => {
   it('creates cross-milestone edges', () => {
     const { edges } = buildGraphData(makeData());
     expect(edges.some((e) => e.from === 't2' && e.to === 't3')).toBe(true);
-  });
-});
-
-describe('buildFlameData', () => {
-  it('creates milestone and task rows', () => {
-    const { rows, totalHours } = buildFlameData(makeData());
-    const milestoneRows = rows.filter((r) => r.depth === 0);
-    const taskRows = rows.filter((r) => r.depth === 1);
-    expect(milestoneRows.length).toBe(2);
-    expect(taskRows.length).toBe(4);
-    expect(totalHours).toBe(12); // 3+2+4+3
-  });
-
-  it('widths sum to ~1.0', () => {
-    const { rows } = buildFlameData(makeData());
-    const milestoneRows = rows.filter((r) => r.depth === 0);
-    const totalWidth = milestoneRows.reduce((s, r) => s + r.width, 0);
-    expect(totalWidth).toBeCloseTo(1.0, 5);
-  });
-
-  it('returns empty for no tasks', () => {
-    const data = makeData({ tasks: {} });
-    const { rows } = buildFlameData(data);
-    expect(rows.length).toBe(0);
   });
 });
 

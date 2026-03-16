@@ -18,7 +18,6 @@ const VIEW_KEYS: Record<ViewName, string> = {
   estimates: `${COMMON_KEYS}`,
   kanban: `h/l:Column  j/k:Card  Enter:Detail  ${COMMON_KEYS}`,
   gantt: `j/k:Navigate  Enter:Detail  ${COMMON_KEYS}`,
-  flame: `j/k:Select  ${COMMON_KEYS}`,
   priority: `j/k:Navigate  s:Sort  Enter:Detail  ${COMMON_KEYS}`,
   graph: `j/k:Scroll  ${COMMON_KEYS}`,
 };

@@ -5,6 +5,23 @@ All notable changes to acp-visualizer-tui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-03-16
+
+### Added
+- Burndown chart view with ASCII area chart showing cumulative task completion over time
+- Estimate vs actual chart view comparing estimated hours against actual milestone duration
+- Kanban board view with three status columns and milestone cards (h/l/j/k navigation)
+- Gantt timeline view with horizontal bars positioned by date, month markers, and progress fill
+- Dependency graph view with box-drawing character nodes and sequential/cross-milestone edges
+- Flame chart view showing time allocation as stacked horizontal bars sized by estimated hours
+- Priority pivot table view grouping tasks by priority field (P0-P3) from progress.yaml extra fields
+- Shared chart-utils.ts with data transformation utilities for all chart views
+- 7 new tests for flame chart and priority pivot data builders
+
+### Changed
+- Navigation expanded from 5 to 12 views (Tab/Shift+Tab cycles through all)
+- Build size increased from 51KB to 101KB to support new visualizations
+
 ## [0.1.3] - 2026-03-15
 
 ### Added

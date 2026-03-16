@@ -113,6 +113,10 @@ export default function App({ filePath, watch, initialView }: AppProps) {
     if (input === 'f') { filter.cycleFilter(); return; }
     if (input === 'r') { reload(); return; }
     if (input === '/') { search.startSearch(); return; }
+    // Number keys: 1-9 → views 0-8, 0 → view 9, - → view 10
+    if (input && input >= '1' && input <= '9') { nav.goToIndex(parseInt(input) - 1); return; }
+    if (input === '0' && nav.views.length > 9) { nav.goToIndex(9); return; }
+    if (input === '-' && nav.views.length > 10) { nav.goToIndex(10); return; }
     if (key.tab) {
       if (key.shift) { nav.prevView(); }
       else { nav.nextView(); }

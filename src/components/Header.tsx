@@ -25,18 +25,19 @@ export function Header({
         {projectName} <Text dimColor>v{projectVersion}</Text>
       </Text>
       <Box gap={1}>
-        {views.map((view) => {
+        {views.map((view, i) => {
           const isActive = view === currentView;
+          const numKey = i < 9 ? String(i + 1) : i === 9 ? '0' : '-';
           if (isActive) {
             return (
               <Text key={view} bold color="cyan">
-                [{labels[view]}]
+                [{numKey}:{labels[view]}]
               </Text>
             );
           }
           return (
             <Text key={view} dimColor>
-              {' '}{labels[view]}{' '}
+              {numKey}:{labels[view]}
             </Text>
           );
         })}

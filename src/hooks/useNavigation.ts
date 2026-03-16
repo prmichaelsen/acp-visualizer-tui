@@ -26,6 +26,7 @@ export interface NavigationState {
   nextView: () => void;
   prevView: () => void;
   goToView: (view: ViewName) => void;
+  goToIndex: (index: number) => void;
   pushView: (view: ViewName) => void;
   popView: () => void;
 }
@@ -56,6 +57,12 @@ export function useNavigation(initialView?: string): NavigationState {
     setCurrentView(view);
   }, []);
 
+  const goToIndex = useCallback((index: number) => {
+    if (index >= 0 && index < VIEW_ORDER.length) {
+      setCurrentView(VIEW_ORDER[index]);
+    }
+  }, []);
+
   const pushView = useCallback((view: ViewName) => {
     setCurrentView((prev) => {
       setViewStack((stack) => [...stack, prev]);
@@ -81,6 +88,7 @@ export function useNavigation(initialView?: string): NavigationState {
     nextView,
     prevView,
     goToView,
+    goToIndex,
     pushView,
     popView,
   };

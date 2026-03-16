@@ -6,7 +6,7 @@ interface HelpBarProps {
   currentView: ViewName;
 }
 
-const COMMON_KEYS = 'Tab:View  f:Filter  /:Search  r:Refresh  q:Quit  ?:Help';
+const COMMON_KEYS = '1-0:Jump  Tab:View  f:Filter  /:Search  r:Refresh  q:Quit  ?:Help';
 
 const VIEW_KEYS: Record<ViewName, string> = {
   dashboard: `${COMMON_KEYS}`,

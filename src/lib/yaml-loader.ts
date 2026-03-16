@@ -9,7 +9,14 @@ import type {
   ProgressSummary,
   Status,
   ExtraFields,
+  SchemaVersion,
 } from './types.js';
+
+export interface ParseResult {
+  data: ProgressData;
+  schemaVersion: SchemaVersion;
+  warnings: string[];
+}
 
 const TASK_ALIASES: Record<string, string> = {
   est_hours: 'estimated_hours',
@@ -103,8 +110,31 @@ function normalizeMilestone(raw: unknown): Milestone {
 }
 
 function normalizeMilestones(raw: unknown): Milestone[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.map(normalizeMilestone);
+  // Legacy schema: milestones is an array with id field
+  if (Array.isArray(raw)) {
+    return raw.map(normalizeMilestone);
+  }
+  // v6 schema: milestones is a map keyed by ID (e.g., M1: { name: ... })
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    return Object.entries(raw as Record<string, unknown>).map(([key, value]) => {
+      const milestone = normalizeMilestone(value);
+      milestone.id = key; // ID comes from the map key, not a field
+      return milestone;
+    });
+  }
+  return [];
+}
+
+function detectSchemaVersion(doc: Record<string, unknown>): SchemaVersion {
+  const milestones = doc.milestones;
+  if (Array.isArray(milestones)) return 'legacy';
+  if (milestones && typeof milestones === 'object') return 'v6';
+  // If no milestones, check task keys for M1 vs milestone_1 pattern
+  if (doc.tasks && typeof doc.tasks === 'object') {
+    const keys = Object.keys(doc.tasks as Record<string, unknown>);
+    if (keys.some((k) => /^M\d+$/.test(k))) return 'v6';
+  }
+  return 'legacy';
 }
 
 function normalizeTask(raw: unknown, milestoneId: string): Task {
@@ -231,11 +261,23 @@ function reconcileTaskKeys(
   return reconciled;
 }
 
-export function parseProgressYaml(raw: string): ProgressData {
+export function parseProgressYaml(raw: string): ParseResult {
   try {
     const doc = yaml.load(raw) as Record<string, unknown> | null;
     if (!doc || typeof doc !== 'object') {
-      return emptyProgressData();
+      return { data: emptyProgressData(), schemaVersion: 'legacy', warnings: [] };
+    }
+
+    const schemaVersion = detectSchemaVersion(doc);
+    const warnings: string[] = [];
+
+    if (schemaVersion === 'legacy') {
+      warnings.push(
+        'Detected legacy progress.yaml schema (array-style milestones).',
+        'This format is deprecated and will not be supported starting December 2026.',
+        'Migrate to v6 schema: milestones as a map keyed by ID (M1, M2, ...) instead of an array.',
+        'See: https://github.com/prmichaelsen/agent-context-protocol for migration guide.',
+      );
     }
 
     const milestones = normalizeMilestones(doc.milestones);
@@ -255,7 +297,7 @@ export function parseProgressYaml(raw: string): ProgressData {
       }
     }
 
-    return {
+    const data: ProgressData = {
       project: normalizeProject(doc.project),
       milestones,
       tasks,
@@ -266,8 +308,10 @@ export function parseProgressYaml(raw: string): ProgressData {
       documentation: normalizeDocStats(doc.documentation),
       progress: normalizeProgress(doc.progress),
     };
+
+    return { data, schemaVersion, warnings };
   } catch {
-    return emptyProgressData();
+    return { data: emptyProgressData(), schemaVersion: 'legacy', warnings: [] };
   }
 }
 

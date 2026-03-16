@@ -35,12 +35,13 @@ type DetailState =
   | { type: 'task'; task: Task; milestone: Milestone };
 
 export default function App({ filePath, watch, initialView }: AppProps) {
-  const { data, error, reload } = useProgressData(filePath);
+  const { data, error, reload, warnings } = useProgressData(filePath);
   useWatchMode(filePath, watch, reload);
   const nav = useNavigation(initialView);
   const filter = useFilter();
   const { exit } = useApp();
   const [showHelp, setShowHelp] = useState(false);
+  const [dismissedWarning, setDismissedWarning] = useState(false);
   const [detail, setDetail] = useState<DetailState>({ type: 'none' });
   const search = useSearch(data);
 
@@ -77,6 +78,11 @@ export default function App({ filePath, watch, initialView }: AppProps) {
 
   // Global keyboard handling
   useInput((input, key) => {
+    if (warnings.length > 0 && !dismissedWarning) {
+      setDismissedWarning(true);
+      return;
+    }
+
     if (showHelp) {
       setShowHelp(false);
       return;
@@ -135,6 +141,23 @@ export default function App({ filePath, watch, initialView }: AppProps) {
     return (
       <Box flexDirection="column" padding={1}>
         <Text dimColor>Loading...</Text>
+      </Box>
+    );
+  }
+
+  // Schema deprecation warning (shown once, dismissed with any key)
+  if (warnings.length > 0 && !dismissedWarning) {
+    return (
+      <Box flexDirection="column" padding={1}>
+        <Box flexDirection="column" borderStyle="single" borderColor="yellow" paddingX={2} paddingY={1}>
+          <Text bold color="yellow"> Deprecation Warning</Text>
+          <Text />
+          {warnings.map((w, i) => (
+            <Text key={i} color="yellow">  {w}</Text>
+          ))}
+          <Text />
+          <Text dimColor>  Press any key to dismiss</Text>
+        </Box>
       </Box>
     );
   }

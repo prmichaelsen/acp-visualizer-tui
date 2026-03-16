@@ -44,8 +44,14 @@ if (!fs.existsSync(resolvedPath)) {
 if (cli.flags.json) {
   try {
     const raw = fs.readFileSync(resolvedPath, 'utf-8');
-    const data = parseProgressYaml(raw);
-    console.log(JSON.stringify(data, null, 2));
+    const result = parseProgressYaml(raw);
+    if (result.warnings.length > 0) {
+      for (const w of result.warnings) {
+        console.error(`Warning: ${w}`);
+      }
+      console.error('');
+    }
+    console.log(JSON.stringify(result.data, null, 2));
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`Error reading file: ${msg}`);

@@ -75,7 +75,7 @@ notes:
 
 current_blockers: []
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     expect(data.project.name).toBe('test-project');
     expect(data.project.version).toBe('1.0.0');
@@ -98,7 +98,7 @@ current_blockers: []
 project:
   name: minimal
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     expect(data.project.name).toBe('minimal');
     expect(data.milestones).toEqual([]);
@@ -129,7 +129,7 @@ tasks:
       name: T1
       status: complete
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     expect(data.project.status).toBe('in_progress');
     expect(data.milestones[0].status).toBe('completed');
@@ -151,7 +151,7 @@ tasks:
       done_date: "2026-01-01"
       filename: agent/tasks/t1.md
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
     const task = data.tasks.m1[0];
 
     expect(task.estimated_hours).toBe('5');
@@ -179,7 +179,7 @@ tasks:
       status: not_started
       assignee: agent-1
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     expect(data.project.extra.custom_field).toBe('hello');
     expect(data.project.extra.priority).toBe('high');
@@ -196,7 +196,7 @@ notes: "single note"
 next_steps: "single step"
 current_blockers: "single blocker"
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     expect(data.notes).toEqual(['single note']);
     expect(data.next_steps).toEqual(['single step']);
@@ -204,7 +204,7 @@ current_blockers: "single blocker"
   });
 
   it('handles completely empty input', () => {
-    const data = parseProgressYaml('');
+    const { data } = parseProgressYaml('');
 
     expect(data.project.name).toBe('Unknown');
     expect(data.milestones).toEqual([]);
@@ -212,7 +212,7 @@ current_blockers: "single blocker"
   });
 
   it('handles invalid YAML', () => {
-    const data = parseProgressYaml('{{{{not yaml at all');
+    const { data } = parseProgressYaml('{{{{not yaml at all');
 
     expect(data.project.name).toBe('Unknown');
     expect(data.milestones).toEqual([]);
@@ -243,7 +243,7 @@ tasks:
       name: T3
       status: not_started
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     expect(data.milestones[0].tasks_completed).toBe(2);
     expect(data.milestones[0].tasks_total).toBe(3);
@@ -276,7 +276,7 @@ tasks:
       name: Task Three
       status: not_started
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     // Tasks should be re-keyed to M1/M2
     expect(data.tasks.M1).toHaveLength(2);
@@ -312,7 +312,7 @@ tasks:
       name: Numeric Match
       status: not_started
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     expect(data.tasks.m1).toHaveLength(1);
     expect(data.tasks.m1[0].milestone_id).toBe('m1');
@@ -336,7 +336,7 @@ tasks:
       name: Already Matches
       status: completed
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     expect(data.tasks.milestone_1).toHaveLength(1);
     expect(data.tasks.milestone_1[0].milestone_id).toBe('milestone_1');
@@ -364,7 +364,7 @@ tasks:
       name: Not Done
       status: not_started
 `;
-    const data = parseProgressYaml(yaml);
+    const { data } = parseProgressYaml(yaml);
 
     expect(data.tasks.M1).toHaveLength(2);
     expect(data.milestones[0].tasks_completed).toBe(1);
@@ -372,10 +372,89 @@ tasks:
     expect(data.milestones[0].progress).toBe(50);
   });
 
+  it('detects legacy schema and returns warnings', () => {
+    const yaml = `
+project:
+  name: test
+milestones:
+  - id: milestone_1
+    name: M1
+    status: completed
+`;
+    const result = parseProgressYaml(yaml);
+    expect(result.schemaVersion).toBe('legacy');
+    expect(result.warnings.length).toBeGreaterThan(0);
+    expect(result.warnings[0]).toContain('legacy');
+  });
+
+  it('parses v6 schema with map-style milestones', () => {
+    const yaml = `
+project:
+  name: test-v6
+  version: 6.0.0
+  started: 2026-03-01
+  status: in_progress
+
+milestones:
+  M1:
+    name: First Milestone
+    status: completed
+    progress: 100
+    estimated_weeks: "1"
+    tasks_completed: 2
+    tasks_total: 2
+    priority: high
+    file: agent/milestones/milestone-1.md
+  M2:
+    name: Second Milestone
+    status: in_progress
+    progress: 50
+    estimated_weeks: "2"
+    tasks_completed: 1
+    tasks_total: 2
+    priority: medium
+
+tasks:
+  M1:
+    - id: task-1
+      name: First Task
+      status: completed
+      priority: critical
+      started: "2026-03-01T10:00:00Z"
+      completed_date: "2026-03-01T14:00:00Z"
+      actual_hours: 4
+    - id: task-2
+      name: Second Task
+      status: completed
+  M2:
+    - id: task-3
+      name: Third Task
+      status: completed
+    - id: task-4
+      name: Fourth Task
+      status: not_started
+`;
+    const result = parseProgressYaml(yaml);
+
+    expect(result.schemaVersion).toBe('v6');
+    expect(result.warnings).toHaveLength(0);
+    expect(result.data.project.name).toBe('test-v6');
+    expect(result.data.milestones).toHaveLength(2);
+    expect(result.data.milestones[0].id).toBe('M1');
+    expect(result.data.milestones[0].name).toBe('First Milestone');
+    expect(result.data.milestones[1].id).toBe('M2');
+    expect(result.data.tasks.M1).toHaveLength(2);
+    expect(result.data.tasks.M2).toHaveLength(2);
+    expect(result.data.tasks.M1[0].milestone_id).toBe('M1');
+    // Priority lands in extra since it's not a known field
+    expect(result.data.milestones[0].extra.priority).toBe('high');
+    expect(result.data.tasks.M1[0].extra.priority).toBe('critical');
+  });
+
   it('parses real progress.yaml from this project', () => {
     const filePath = path.resolve('agent/progress.yaml');
     const raw = fs.readFileSync(filePath, 'utf-8');
-    const data = parseProgressYaml(raw);
+    const { data } = parseProgressYaml(raw);
 
     expect(data.project.name).toBe('acp-visualizer-tui');
     expect(data.milestones.length).toBeGreaterThanOrEqual(3);

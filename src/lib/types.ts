@@ -69,3 +69,5 @@ export interface ProgressSummary {
   implementation: number;
   overall: number;
 }
+
+export type SchemaVersion = 'legacy' | 'v6';

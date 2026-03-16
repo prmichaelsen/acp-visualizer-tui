@@ -14,13 +14,13 @@ const STATUS_COLORS: Record<string, string> = {
   not_started: 'gray',
 };
 
-const BLOCK_CHARS = ['█', '▓', '▒', '░'];
+// Alternate block chars so adjacent tasks are visually distinct
+const TASK_BLOCKS = ['█', '▓'];
 
 export function FlameChart({ data }: FlameChartProps) {
   const { rows, totalHours } = useMemo(() => buildFlameData(data), [data]);
   const [selectedIdx, setSelectedIdx] = useState(0);
 
-  // Separate milestone rows and task rows
   const milestoneRows = useMemo(() => rows.filter((r) => r.depth === 0), [rows]);
   const taskRows = useMemo(() => rows.filter((r) => r.depth === 1), [rows]);
 
@@ -41,35 +41,60 @@ export function FlameChart({ data }: FlameChartProps) {
     );
   }
 
-  const barWidth = 60;
+  const barWidth = 70;
 
-  // Render a flame row as colored bar
-  function renderBar(items: FlameRow[], width: number): React.ReactNode[] {
-    const elements: React.ReactNode[] = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const charWidth = Math.max(1, Math.round(item.width * width));
-      const color = STATUS_COLORS[item.status] || 'gray';
-      const blockChar = item.depth === 0 ? '█' : BLOCK_CHARS[i % BLOCK_CHARS.length];
-      const label = item.label.slice(0, charWidth - 1);
-      const fill = charWidth - label.length - 1;
+  // Render a segmented bar: array of {charWidth, color, label, blockChar}
+  function renderSegmentedBar(
+    segments: { width: number; color: string; label: string; block: string }[],
+    totalWidth: number,
+  ): React.ReactNode {
+    const parts: React.ReactNode[] = [];
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      const charWidth = Math.max(1, Math.round(seg.width * totalWidth));
 
-      if (charWidth >= label.length + 2) {
-        elements.push(
-          <Text key={item.id} color={color}>
-            {label}{' '}{blockChar.repeat(Math.max(0, fill))}
+      // Try to fit label inside the segment
+      if (charWidth >= seg.label.length + 2) {
+        const fill = charWidth - seg.label.length - 1;
+        parts.push(
+          <Text key={i} color={seg.color}>
+            {seg.label}{' '}{seg.block.repeat(Math.max(0, fill))}
+          </Text>
+        );
+      } else if (charWidth >= 3) {
+        // Truncated label
+        const truncated = seg.label.slice(0, charWidth - 1);
+        parts.push(
+          <Text key={i} color={seg.color}>
+            {truncated}{seg.block}
           </Text>
         );
       } else {
-        elements.push(
-          <Text key={item.id} color={color}>
-            {blockChar.repeat(charWidth)}
+        parts.push(
+          <Text key={i} color={seg.color}>
+            {seg.block.repeat(charWidth)}
           </Text>
         );
       }
     }
-    return elements;
+    return <>{parts}</>;
   }
+
+  // Build milestone segments for top bar
+  const milestoneSegments = milestoneRows.map((m, i) => ({
+    width: m.width,
+    color: STATUS_COLORS[m.status] || 'gray',
+    label: m.label,
+    block: '█',
+  }));
+
+  // Build task segments bar (all tasks, all milestones, in order — aligned under milestone bar)
+  const taskSegments = taskRows.map((t, i) => ({
+    width: t.width,
+    color: STATUS_COLORS[t.status] || 'gray',
+    label: t.label,
+    block: TASK_BLOCKS[i % 2],
+  }));
 
   return (
     <Box flexDirection="column">
@@ -78,67 +103,61 @@ export function FlameChart({ data }: FlameChartProps) {
         <Text dimColor>Time allocation by milestone and task ({totalHours}h total)</Text>
         <Text />
 
-        {/* Milestone-level bar (top flame) */}
-        <Text dimColor>{'  Milestones'.padEnd(18)}</Text>
+        {/* Row 1: Milestone segments (top flame) */}
+        <Text dimColor>  Milestones</Text>
         <Box>
           <Text>{'  '}</Text>
-          {renderBar(milestoneRows, barWidth)}
+          {renderSegmentedBar(milestoneSegments, barWidth)}
+        </Box>
+
+        {/* Row 2: Task segments (bottom flame — aligned under milestones) */}
+        <Box>
+          <Text>{'  '}</Text>
+          {renderSegmentedBar(taskSegments, barWidth)}
         </Box>
         <Text />
 
-        {/* Per-milestone task breakdown */}
+        {/* Scale */}
+        <Box>
+          <Text>{'  '}</Text>
+          <Text dimColor>{'0h'}</Text>
+          <Text dimColor>{' '.repeat(Math.max(0, barWidth - 6))}</Text>
+          <Text dimColor>{totalHours}h</Text>
+        </Box>
+        <Text />
+
+        {/* Detail: selected milestone breakdown */}
         {milestoneRows.map((m, mi) => {
           const isSelected = mi === selectedIdx;
+          if (!isSelected) return null;
+
           const milestoneTasks = taskRows.filter((t) => t.milestone === m.milestone);
 
-          // Normalize task widths relative to this milestone
-          const normalizedTasks = milestoneTasks.map((t) => ({
-            ...t,
-            width: t.hours / m.hours,
-          }));
-
           return (
-            <Box key={m.id} flexDirection="column" marginBottom={0}>
-              <Box>
-                <Text bold={isSelected} color={isSelected ? 'cyan' : STATUS_COLORS[m.status]}>
-                  {isSelected ? '> ' : '  '}
-                  {m.label}
-                </Text>
-                <Text dimColor> ({m.hours}h)</Text>
-              </Box>
-              <Box>
-                <Text>{'  '}</Text>
-                {normalizedTasks.map((t, ti) => {
-                  const charWidth = Math.max(1, Math.round(t.width * barWidth));
-                  const color = STATUS_COLORS[t.status] || 'gray';
-                  const label = t.label.slice(0, Math.max(0, charWidth - 1));
+            <Box key={m.id} flexDirection="column">
+              <Text bold color="cyan">
+                {'  '}{m.label} <Text dimColor>({m.hours}h — {Math.round(m.width * 100)}% of total)</Text>
+              </Text>
+              <Text />
+              {milestoneTasks.map((t, ti) => {
+                const pct = Math.round((t.hours / m.hours) * 100);
+                const taskBarWidth = 30;
+                const filled = Math.max(1, Math.round((t.hours / m.hours) * taskBarWidth));
+                const color = STATUS_COLORS[t.status] || 'gray';
+                const dot = t.status === 'completed' ? '✓' : t.status === 'in_progress' ? '●' : '○';
 
-                  if (charWidth >= label.length + 2) {
-                    return (
-                      <Text key={t.id} color={color}>
-                        {label}{' '}{'█'.repeat(Math.max(0, charWidth - label.length - 1))}
-                      </Text>
-                    );
-                  }
-                  return (
-                    <Text key={t.id} color={color}>
-                      {'█'.repeat(charWidth)}
-                    </Text>
-                  );
-                })}
-              </Box>
-              {isSelected && (
-                <Box flexDirection="column" marginLeft={2}>
-                  {milestoneTasks.map((t) => (
-                    <Text key={t.id} dimColor>
-                      <Text color={STATUS_COLORS[t.status]}>
-                        {t.status === 'completed' ? '✓' : t.status === 'in_progress' ? '●' : '○'}
-                      </Text>
-                      {' '}{t.label} — {t.hours}h
-                    </Text>
-                  ))}
-                </Box>
-              )}
+                return (
+                  <Box key={t.id}>
+                    <Text>{'    '}</Text>
+                    <Text color={color}>{dot} </Text>
+                    <Box width={20}>
+                      <Text>{t.label.length > 18 ? t.label.slice(0, 17) + '…' : t.label}</Text>
+                    </Box>
+                    <Text color={color}>{'█'.repeat(filled)}</Text>
+                    <Text dimColor> {t.hours}h ({pct}%)</Text>
+                  </Box>
+                );
+              })}
             </Box>
           );
         })}
@@ -149,7 +168,7 @@ export function FlameChart({ data }: FlameChartProps) {
           <Text color="cyan">█ In Progress</Text>
           <Text dimColor>█ Not Started</Text>
         </Box>
-        <Text dimColor>j/k to select milestone, shows task breakdown</Text>
+        <Text dimColor>j/k to select milestone · task breakdown shown below</Text>
       </Box>
     </Box>
   );

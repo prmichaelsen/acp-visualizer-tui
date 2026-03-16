@@ -20,6 +20,8 @@ import { EstimateChart } from './components/EstimateChart.js';
 import { KanbanBoard } from './components/KanbanBoard.js';
 import { GanttChart } from './components/GanttChart.js';
 import { DependencyGraph } from './components/DependencyGraph.js';
+import { FlameChart } from './components/FlameChart.js';
+import { PriorityPivot } from './components/PriorityPivot.js';
 import type { Milestone, Task } from './lib/types.js';
 
 interface AppProps {
@@ -303,6 +305,16 @@ export default function App({ filePath, watch, initialView }: AppProps) {
             milestones={data.milestones}
             active={true}
             onSelect={openMilestoneDetail}
+          />
+        )}
+        {nav.currentView === 'flame' && (
+          <FlameChart data={data} />
+        )}
+        {nav.currentView === 'priority' && (
+          <PriorityPivot
+            data={data}
+            active={true}
+            onSelectTask={openTaskDetail}
           />
         )}
         {nav.currentView === 'graph' && (

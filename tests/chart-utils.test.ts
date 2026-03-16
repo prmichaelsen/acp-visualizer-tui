@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildBurndownData, buildEstimateData, buildGanttData, buildGraphData, parseDate, daysBetween, formatShortDate } from '../src/lib/chart-utils.js';
+import { buildBurndownData, buildEstimateData, buildGanttData, buildGraphData, buildFlameData, buildPriorityData, parseDate, daysBetween, formatShortDate } from '../src/lib/chart-utils.js';
 import type { ProgressData, Milestone, Task } from '../src/lib/types.js';
 
 function makeData(overrides: Partial<ProgressData> = {}): ProgressData {
@@ -110,6 +110,67 @@ describe('buildGraphData', () => {
   it('creates cross-milestone edges', () => {
     const { edges } = buildGraphData(makeData());
     expect(edges.some((e) => e.from === 't2' && e.to === 't3')).toBe(true);
+  });
+});
+
+describe('buildFlameData', () => {
+  it('creates milestone and task rows', () => {
+    const { rows, totalHours } = buildFlameData(makeData());
+    const milestoneRows = rows.filter((r) => r.depth === 0);
+    const taskRows = rows.filter((r) => r.depth === 1);
+    expect(milestoneRows.length).toBe(2);
+    expect(taskRows.length).toBe(4);
+    expect(totalHours).toBe(12); // 3+2+4+3
+  });
+
+  it('widths sum to ~1.0', () => {
+    const { rows } = buildFlameData(makeData());
+    const milestoneRows = rows.filter((r) => r.depth === 0);
+    const totalWidth = milestoneRows.reduce((s, r) => s + r.width, 0);
+    expect(totalWidth).toBeCloseTo(1.0, 5);
+  });
+
+  it('returns empty for no tasks', () => {
+    const data = makeData({ tasks: {} });
+    const { rows } = buildFlameData(data);
+    expect(rows.length).toBe(0);
+  });
+});
+
+describe('buildPriorityData', () => {
+  it('groups tasks into Unset bucket when no priority set', () => {
+    const buckets = buildPriorityData(makeData());
+    expect(buckets.length).toBe(1);
+    expect(buckets[0].priority).toBe('UNSET');
+    expect(buckets[0].tasks.length).toBe(4);
+  });
+
+  it('groups tasks by priority from extra fields', () => {
+    const data = makeData();
+    data.tasks.m1[0].extra = { priority: 'P0' };
+    data.tasks.m1[1].extra = { priority: 'P1' };
+    data.tasks.m2[0].extra = { priority: 'P0' };
+    const buckets = buildPriorityData(data);
+    const p0 = buckets.find((b) => b.priority === 'P0');
+    expect(p0).toBeDefined();
+    expect(p0!.tasks.length).toBe(2);
+  });
+
+  it('normalizes numeric priority to P-prefix', () => {
+    const data = makeData();
+    data.tasks.m1[0].extra = { priority: '0' };
+    const buckets = buildPriorityData(data);
+    expect(buckets.some((b) => b.priority === 'P0')).toBe(true);
+  });
+
+  it('sorts P0 before P1 before Unset', () => {
+    const data = makeData();
+    data.tasks.m1[0].extra = { priority: 'P1' };
+    data.tasks.m2[0].extra = { priority: 'P0' };
+    const buckets = buildPriorityData(data);
+    expect(buckets[0].priority).toBe('P0');
+    expect(buckets[1].priority).toBe('P1');
+    expect(buckets[buckets.length - 1].priority).toBe('UNSET');
   });
 });
 

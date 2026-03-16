@@ -186,6 +186,133 @@ export interface GraphEdge {
   to: string;
 }
 
+// ─── Flame Chart ────────────────────────────────────────────────────────────
+
+export interface FlameRow {
+  label: string;
+  width: number;    // proportional width (0-1) relative to total
+  offset: number;   // proportional left offset (0-1)
+  hours: number;
+  status: string;
+  depth: number;    // 0 = milestone row, 1 = task row
+  id: string;
+  milestone: string;
+}
+
+export function buildFlameData(data: ProgressData): { rows: FlameRow[]; totalHours: number } {
+  const milestoneHours: { milestone: Milestone; hours: number; tasks: { task: Task; hours: number }[] }[] = [];
+  let totalHours = 0;
+
+  for (const m of data.milestones) {
+    const tasks = data.tasks[m.id] || [];
+    const taskEntries = tasks.map((t) => ({
+      task: t,
+      hours: parseFloat(t.estimated_hours) || 1,
+    }));
+    const milestoneTotal = taskEntries.reduce((s, e) => s + e.hours, 0);
+    milestoneHours.push({ milestone: m, hours: milestoneTotal, tasks: taskEntries });
+    totalHours += milestoneTotal;
+  }
+
+  if (totalHours === 0) return { rows: [], totalHours: 0 };
+
+  const rows: FlameRow[] = [];
+  let milestoneOffset = 0;
+
+  for (const { milestone, hours, tasks } of milestoneHours) {
+    const milestoneWidth = hours / totalHours;
+
+    // Milestone bar (depth 0) — spans the full width of its tasks
+    rows.push({
+      label: milestone.name.length > 25 ? milestone.name.slice(0, 24) + '…' : milestone.name,
+      width: milestoneWidth,
+      offset: milestoneOffset,
+      hours,
+      status: milestone.status,
+      depth: 0,
+      id: milestone.id,
+      milestone: milestone.name,
+    });
+
+    // Task bars (depth 1) — stacked within milestone width
+    let taskOffset = milestoneOffset;
+    for (const { task, hours: taskHours } of tasks) {
+      const taskWidth = taskHours / totalHours;
+      rows.push({
+        label: task.name.length > 18 ? task.name.slice(0, 17) + '…' : task.name,
+        width: taskWidth,
+        offset: taskOffset,
+        hours: taskHours,
+        status: task.status,
+        depth: 1,
+        id: task.id,
+        milestone: milestone.name,
+      });
+      taskOffset += taskWidth;
+    }
+
+    milestoneOffset += milestoneWidth;
+  }
+
+  return { rows, totalHours };
+}
+
+// ─── Priority Pivot ─────────────────────────────────────────────────────────
+
+export interface PriorityBucket {
+  priority: string;
+  tasks: { task: Task; milestone: string }[];
+  totalHours: number;
+  completed: number;
+  inProgress: number;
+  notStarted: number;
+}
+
+export function buildPriorityData(data: ProgressData): PriorityBucket[] {
+  const buckets = new Map<string, PriorityBucket>();
+
+  for (const milestone of data.milestones) {
+    const tasks = data.tasks[milestone.id] || [];
+    for (const task of tasks) {
+      // Look for priority in extra fields: priority, P, p, Priority
+      const raw = task.extra.priority ?? task.extra.P ?? task.extra.p ?? task.extra.Priority ?? 'Unset';
+      const priority = String(raw).toUpperCase();
+      // Normalize: "P0" stays "P0", "0" becomes "P0", "high" stays "HIGH"
+      const normalized = /^\d$/.test(priority) ? `P${priority}` : priority;
+
+      if (!buckets.has(normalized)) {
+        buckets.set(normalized, {
+          priority: normalized,
+          tasks: [],
+          totalHours: 0,
+          completed: 0,
+          inProgress: 0,
+          notStarted: 0,
+        });
+      }
+
+      const bucket = buckets.get(normalized)!;
+      bucket.tasks.push({ task, milestone: milestone.name });
+      bucket.totalHours += parseFloat(task.estimated_hours) || 0;
+      if (task.status === 'completed') bucket.completed++;
+      else if (task.status === 'in_progress') bucket.inProgress++;
+      else bucket.notStarted++;
+    }
+  }
+
+  // Sort: P0 first, then P1, P2, etc., then alphabetical, Unset last
+  return [...buckets.values()].sort((a, b) => {
+    if (a.priority === 'UNSET') return 1;
+    if (b.priority === 'UNSET') return -1;
+    const aNum = a.priority.match(/^P(\d+)$/)?.[1];
+    const bNum = b.priority.match(/^P(\d+)$/)?.[1];
+    if (aNum !== undefined && bNum !== undefined) return parseInt(aNum) - parseInt(bNum);
+    if (aNum !== undefined) return -1;
+    if (bNum !== undefined) return 1;
+    return a.priority.localeCompare(b.priority);
+  });
+}
+
 export function buildGraphData(data: ProgressData): { nodes: GraphNode[]; edges: GraphEdge[] } {
   const nodes: GraphNode[] = [];
   const edges: GraphEdge[] = [];
